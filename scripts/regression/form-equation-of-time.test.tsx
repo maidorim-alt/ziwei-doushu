@@ -20,6 +20,8 @@ function formAt(overrides: Partial<BirthFormState> = {}): BirthFormState {
 const pick = (birth: ReturnType<typeof formToBirthInfo>) => ({
   year: birth.year, month: birth.month, day: birth.day, hour: birth.hour,
 });
+// Giao diện đã Việt hóa: giờ chi hiển thị dạng "Giờ Ngọ"
+const VI: Record<string, string> = { 子: 'Tý', 丑: 'Sửu', 寅: 'Dần', 卯: 'Mão', 辰: 'Thìn', 巳: 'Tỵ', 午: 'Ngọ', 未: 'Mùi', 申: 'Thân', 酉: 'Dậu', 戌: 'Tuất', 亥: 'Hợi' };
 const render = (form: BirthFormState) => renderToStaticMarkup(
   React.createElement(BirthForm, { initialData: form, onSubmit: () => {} }),
 );
@@ -63,8 +65,8 @@ const cases = [
 for (const { label, form, expected, branch, correction } of cases) {
   assert.deepEqual(pick(formToBirthInfo(form)), expected, label);
   const html = render(form);
-  assert.ok(html.includes(`>${branch}时<`), `表单预览应与提交一致：${label}`);
-  assert.ok(html.includes(`总时差 ${correction} 分钟`), `显示总修正量：${label}`);
+  assert.ok(html.includes(`>Giờ ${VI[branch]}<`), `表单预览应与提交一致：${label}`);
+  assert.ok(html.includes(`Chênh lệch ${correction} phút`), `显示总修正量：${label}`);
   const restored = searchParamsToForm(formToSearchParams(form));
   assert.ok(restored);
   assert.deepEqual(formToBirthInfo({ ...formAt(), ...restored }), formToBirthInfo(form), `分享链接复现：${label}`);
@@ -73,8 +75,8 @@ for (const { label, form, expected, branch, correction } of cases) {
 // 同一钟表时间和经度，仅改变日期也会改变均时差与时辰。
 const winter = formAt({ month: '2', day: '11' });
 assert.equal(formToBirthInfo(winter).hour, 5);
-assert.ok(render(winter).includes('>巳时<'));
-assert.ok(render(formAt()).includes('>午时<'));
+assert.ok(render(winter).includes('>Giờ Tỵ<'));
+assert.ok(render(formAt()).includes('>Giờ Ngọ<'));
 
 const control = formAt({ clockMinute: '20' });
 assert.equal(formToBirthInfo(control).hour, 5, '远离边界的样例仍为巳时');
@@ -82,11 +84,11 @@ assert.equal(formToBirthInfo(control).hour, 5, '远离边界的样例仍为巳�
 const noLocation = formAt({ province: '', city: '' });
 assert.equal(formToBirthInfo(noLocation).hour, 5, '未填出生地不应用均时差');
 assert.equal(formToBirthInfo(noLocation).longitude, undefined);
-assert.ok(render(noLocation).includes('>巳时<'));
+assert.ok(render(noLocation).includes('>Giờ Tỵ<'));
 
 const unknown = formAt({ clockHour: '22', unknownTime: true });
 assert.deepEqual(pick(formToBirthInfo(unknown)), { year: 2000, month: 11, day: 3, hour: 0 }, '时辰不详保持原日期与子时');
-assert.ok(render(unknown).includes('>子时<'));
+assert.ok(render(unknown).includes('>Giờ Tý<'));
 
 const incomplete = formAt({ year: '', month: '', day: '', longitude: 100, clockHour: '12', clockMinute: '10' });
 assert.deepEqual(pick(formToBirthInfo(incomplete)), { year: 0, month: 0, day: 0, hour: 5 }, '未填日期时沿用经度修正，不生成无效日期');

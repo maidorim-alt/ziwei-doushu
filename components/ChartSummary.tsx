@@ -1,7 +1,7 @@
 'use client';
 import { motion } from 'framer-motion';
 import type { ZiweiChart } from '@/lib/ziwei/types';
-import { BRANCHES, STEMS } from '@/lib/ziwei/constants';
+import { viStar, viPalace, viSiHua, viJu, viStem, viBranch } from '@/lib/ziwei/vi';
 import { detectPatterns, getMingGongSummary } from '@/lib/ziwei/patterns';
 
 interface ChartSummaryProps {
@@ -47,19 +47,19 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
       <div className="card-glass rounded-xl p-5">
         <div className="text-[10px] tracking-widest mb-4 flex items-center gap-2" style={{ color: 'var(--t-faint)' }}>
           <span style={{ color: 'var(--t-gold)', opacity: 0.6 }}>✦</span>
-          命格总览
+          Tổng quan mệnh cách
         </div>
 
         <div className="flex flex-wrap items-start gap-4">
           <div>
-            <div className="text-[9px] mb-1.5" style={{ color: 'var(--t-faint)', opacity: 0.85 }}>命宫主星</div>
+            <div className="text-[9px] mb-1.5" style={{ color: 'var(--t-faint)', opacity: 0.85 }}>Chính tinh cung Mệnh</div>
             <div className="flex items-center gap-1">
               {mingStars.length > 0 ? (
                 mingStars.map(s => (
-                  <span key={s} className="font-bold text-lg" style={{ color: 'var(--t-gold)' }}>{s}</span>
+                  <span key={s} className="font-bold text-lg" style={{ color: 'var(--t-gold)' }}>{viStar(s)}</span>
                 ))
               ) : (
-                <span className="text-sm" style={{ color: 'var(--t-faint)' }}>空宫</span>
+                <span className="text-sm" style={{ color: 'var(--t-faint)' }}>Cung trống</span>
               )}
             </div>
             {nature && (
@@ -69,7 +69,7 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
 
           {keywords.length > 0 && (
             <div>
-              <div className="text-[9px] mb-1.5" style={{ color: 'var(--t-faint)', opacity: 0.85 }}>性格特质</div>
+              <div className="text-[9px] mb-1.5" style={{ color: 'var(--t-faint)', opacity: 0.85 }}>Đặc điểm tính cách</div>
               <div className="flex flex-wrap gap-1.5">
                 {keywords.map(k => (
                   <span key={k} className="text-[10px] px-2 py-0.5 rounded-full"
@@ -86,11 +86,11 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
           )}
 
           <div className="ml-auto text-right">
-            <div className="text-[9px] mb-1" style={{ color: 'var(--t-faint)', opacity: 0.85 }}>五行局 · 当前大限</div>
-            <div className="text-[11px]" style={{ color: 'var(--t-text2)' }}>{chart.wuxingJuName}</div>
+            <div className="text-[9px] mb-1" style={{ color: 'var(--t-faint)', opacity: 0.85 }}>Cục · Đại hạn hiện tại</div>
+            <div className="text-[11px]" style={{ color: 'var(--t-text2)' }}>{viJu(chart.wuxingJuName)}</div>
             {currentDx && (
               <div className="text-[11px] text-purple-500 mt-0.5">
-                {currentDx.startAge}~{currentDx.endAge}岁 · {currentDx.palaceName}
+                {currentDx.startAge}~{currentDx.endAge} tuổi · {viPalace(currentDx.palaceName)}
               </div>
             )}
           </div>
@@ -98,13 +98,12 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
 
         <div className="mt-4 pt-3 flex flex-wrap gap-x-4 gap-y-1 text-[10px]"
           style={{ borderTop: '1px solid var(--t-border)', color: 'var(--t-faint)' }}>
-          <span>公历 {chart.birthInfo.year}-{chart.birthInfo.month}-{chart.birthInfo.day}</span>
+          <span>Dương lịch {chart.birthInfo.day}/{chart.birthInfo.month}/{chart.birthInfo.year}</span>
           <span>
-            农历 {chart.lunarInfo.lunarYear}年{chart.lunarInfo.isLeapMonth ? '闰' : ''}
-            {chart.lunarInfo.lunarMonth}月{chart.lunarInfo.lunarDay}日
+            Âm lịch {chart.lunarInfo.lunarDay}/{chart.lunarInfo.isLeapMonth ? 'nhuận ' : ''}{Math.abs(chart.lunarInfo.lunarMonth)}/{chart.lunarInfo.lunarYear}
           </span>
-          <span>{STEMS[chart.lunarInfo.yearStem]}{BRANCHES[chart.lunarInfo.yearBranch]}年 · {BRANCHES[chart.birthInfo.hour]}时</span>
-          <span>命宫{BRANCHES[chart.mingGongBranch]} · 身宫{BRANCHES[chart.shenGongBranch]}</span>
+          <span>Năm {viStem(chart.lunarInfo.yearStem)} {viBranch(chart.lunarInfo.yearBranch)} · Giờ {viBranch(chart.birthInfo.hour)}</span>
+          <span>Mệnh cung {viBranch(chart.mingGongBranch)} · Thân cung {viBranch(chart.shenGongBranch)}</span>
         </div>
       </div>
       </motion.div>
@@ -119,7 +118,7 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
         <div className="card-glass rounded-xl p-4">
           <div className="text-[10px] tracking-widest mb-3 flex items-center gap-2" style={{ color: 'var(--t-faint)' }}>
             <span style={{ color: 'var(--t-gold)', opacity: 0.6 }}>◆</span>
-            本命四化
+            Tứ hóa bản mệnh
           </div>
           <div className="grid grid-cols-2 gap-2">
             {siHuaSummary.map(({ name, siHua, palaceName }) => {
@@ -135,10 +134,10 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
                   className="flex items-center justify-between px-3 py-2 rounded-lg text-[10px]"
                   style={{ background: c.bg, border: `1px solid ${c.border}`, color: c.text }}
                 >
-                  <span className="font-medium">{name}</span>
+                  <span className="font-medium">{viStar(name)}</span>
                   <div className="flex items-center gap-1.5 text-right">
-                    <span style={{ opacity: 0.6 }} className="text-[9px]">{palaceName.replace('宫', '')}</span>
-                    <span className="font-bold">化{siHua}</span>
+                    <span style={{ opacity: 0.6 }} className="text-[9px]">{viPalace(palaceName)}</span>
+                    <span className="font-bold">Hóa {viSiHua(siHua)}</span>
                   </div>
                 </div>
               );
@@ -158,8 +157,8 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
         <div className="card-glass rounded-xl p-4">
           <div className="text-[10px] tracking-widest mb-3 flex items-center gap-2" style={{ color: 'var(--t-faint)' }}>
             <span style={{ color: 'var(--t-gold)', opacity: 0.6 }}>◉</span>
-            格局识别
-            <span className="text-[9px] ml-auto" style={{ color: 'var(--t-faint)', opacity: 0.75 }}>{patterns.length}个格局</span>
+            Nhận diện cách cục
+            <span className="text-[9px] ml-auto" style={{ color: 'var(--t-faint)', opacity: 0.75 }}>{patterns.length} cách cục</span>
           </div>
           <div className="space-y-2">
             {patterns.map((p, i) => {
@@ -178,7 +177,7 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
                     <div className="flex gap-1 ml-auto">
                       {p.palaces.slice(0, 2).map(pa => (
                         <span key={pa} className={`text-[8px] px-1.5 py-px rounded-full border ${st.badge}`}>
-                          {pa.replace('宫', '')}
+                          {viPalace(pa)}
                         </span>
                       ))}
                     </div>
@@ -235,7 +234,7 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
       <div className="card-glass rounded-xl p-4">
         <div className="text-[10px] tracking-widest mb-3 flex items-center gap-2" style={{ color: 'var(--t-faint)' }}>
           <span className="text-purple-500/60">◎</span>
-          大限运程
+          Vận trình đại hạn
         </div>
         <div className="grid grid-cols-3 gap-2">
           {chart.daXians.slice(0, 9).map((dx, i) => {
@@ -253,7 +252,7 @@ export default function ChartSummary({ chart }: ChartSummaryProps) {
                 }}
               >
                 <div className="font-mono tabular-nums">{dx.startAge}~{dx.endAge}</div>
-                <div className="text-[9px] mt-0.5" style={{ opacity: 0.7 }}>{dx.palaceName.replace('宫', '')}</div>
+                <div className="text-[9px] mt-0.5" style={{ opacity: 0.7 }}>{viPalace(dx.palaceName)}</div>
               </div>
             );
           })}
